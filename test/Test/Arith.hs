@@ -1,7 +1,7 @@
 module Test.Arith where 
 
 import Test.HUnit (Assertion, (@?=))
-import Arith (evaluate, parseNum, parseOp, parseSum, parseMult, Operator (..), AST (..), toPostfix, fromPostfix)
+import Arith (evaluate, parseNum, parseOp, parseSum, parseMult, Operator (..), AST (..), toPostfix, fromPostfix, parseTerm)
 
 unit_evaluate :: Assertion 
 unit_evaluate = do 
