@@ -42,8 +42,50 @@ initial text={}
   \begin{enumerate}
     \item Недетерминированный конечный автомат
     \item Недетерминированный конечный автомат без $\varepsilon$-переходов
-    \item Минимальный полный детерминированный конечный автомат
-  \end{enumerate}
+    \item Минимальный полный детерминированный конечный автомат\\
+	\end{enumerate}
+    Решение:\\
+    Заметим, что очевидно можно выкинуть центральную скобку и ничего не изменится. Решим для $(a \mid b)^+(a \mid b)^+$.\\
+      \begin{enumerate}
+    	\item
+    	\begin{myauto}
+    		\node [state, initial] (A) {$A$};
+    		\node [state]          (B) [right=of A] {$B$};
+    		\node [state]          (C) [right=of B] {$C$};
+    		\node [state, accepting]          (D) [right=of C] {$D$};
+    		
+    		\path[->] (A) edge            node [above] {$a, b$} (B)
+    		(B) edge [loop above] node [above] {$a, b$} ()
+    		(B) edge              node [above] {$\varepsilon$} (C)
+    		(C) edge              node [above] {$a, b$} (D)
+    		(D) edge [loop above] node [above] {$a, b$} ()
+    		;
+    	\end{myauto}
+    	\item
+    	\begin{myauto}
+    		\node [state, initial] (A) {$A$};
+    		\node [state]          (B) [right=of A] {$B$};
+    		\node [state, accepting]          (C) [right=of B] {$C$};
+    		
+    		\path[->] (A) edge            node [above] {$a, b$} (B)
+    		(B) edge [loop above] node [above] {$a, b$} ()
+    		(B) edge              node [above] {$a, b$} (C)
+    		(C) edge [loop above] node [above] {$a, b$} ()
+    		;
+    	\end{myauto}
+    	\item
+    	\begin{myauto}
+    		\node [state, initial] (A) {$q_{s}$};
+    		\node [state]          (B) [right=of A] {$B$};
+    		\node [state, accepting]          (C) [right=of B] {$C$};
+    		
+    		\path[->] (A) edge            node [above] {$a, b$} (B)
+    		(B) edge              node [above] {$a, b$} (C)
+    		(C) edge [loop above] node [above] {$a, b$} ()
+    		;
+    	\end{myauto}
+    	
+    \end{enumerate}
   \item Построить регулярное выражение, распознающее тот же язык, что и автомат:
   \begin{myauto}
     \node[state]           (q_2)                {$q_2$};
@@ -64,8 +106,14 @@ initial text={}
                     edge              node [above] {$c$}       (q_4)
     ;
   \end{myauto}
-  \item Определить, является ли автоматным язык $\{ \omega \omega^r \mid \omega \in \{ 0, 1 \}^* \}$. Если является --- построить автомат, иначе --- доказать.
-  \item Определить, является ли автоматным язык $\{ u a a v \mid u, v \in \{ a, b \}^* , |u|_b \geq |v|_a \}$. Если является --- построить автомат, иначе --- доказать.
+	Решение:\\
+	$(a \mid b \mid c)^* (a (b \mid c)^* a \mid b (a \mid c)^* b \mid c (a \mid b)^* c)$
+  \item Определить, является ли автоматным язык $\{ \omega \omega^r \mid \omega \in \{ 0, 1 \}^* \}$. Если является --- построить автомат, иначе --- доказать.\\
+  Решение:\\
+  Воспользуемся леммой о накачке. Пусть язык автоматный. Возьмем $n$ из леммы и рассмотрим слово $\omega = 0^n1^n1^n0^n$. Пусть $xyz = \omega, |xy| < n, y \not =  \varepsilon$, тогда $y = 0^b$. Теперь возьмем $k = 3$. Тогда максимальный префикс из нулей у слова $xy^kz$ имеет размер $n + 2b > n$. А максимальный суффикс из нулей имеет размер $n$. Противоречие с тем, что слово из языка.
+  \item Определить, является ли автоматным язык $\{ u a a v \mid u, v \in \{ a, b \}^* , |u|_b \geq |v|_a \}$. Если является --- построить автомат, иначе --- доказать.\\
+  Решение:\\
+  Воспользуемся леммой о накачке. Пусть язык автоматный. Возьмем $n$ из леммы и рассмотрим слово $\omega = b^naa(ba)^n$. Теперь берем $k = 0$. В слове $xy^kz$ возможно только одно вхождение $aa$. $y$ не пуст, поэтому до $aa$ будет $< n$ символов $b$, а после $aa$ будет $n$ символов $a$. Противоречие.  
 \end{enumerate}
 
 \newpage
