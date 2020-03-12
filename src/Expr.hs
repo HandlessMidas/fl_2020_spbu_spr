@@ -1,9 +1,10 @@
 module Expr where
 
 import           AST         (AST (..), Operator (..))
-import           Combinators (Parser (..), Result (..), bind', elem', fail',
-                              fmap', satisfy, some', success)
+import           Combinators (Parser (..), Result (..), elem', fail',
+                              satisfy, success, symbol)
 import           Data.Char   (digitToInt, isDigit)
+import           Control.Applicative
 
 data Associativity
   = LeftAssoc  -- 1 @ 2 @ 3 @ 4 = (((1 @ 2) @ 3) @ 4)
@@ -16,24 +17,43 @@ uberExpr :: Monoid e
          -> Parser e i ast -- парсер для элементарного выражения
          -> (op -> ast -> ast -> ast) -- функция для создания абстрактного синтаксического дерева для бинарного оператора
          -> Parser e i ast
-uberExpr = error "uberExpr undefined"
+uberExpr [] ep _               = ep
+uberExpr ((op, assoc):xs) ep f = 
+  case assoc of
+    LeftAssoc -> do
+      first <- lp
+      rest <- many $ (flip (,)) <$> op <*> lp
+      return $ foldl (flip $ uncurry $ flip $ flip . f) first rest  
+    RightAssoc -> do
+      rest <- many $ (,) <$> lp <*> op
+      first <- lp
+      return $ foldr (uncurry $ flip f) first rest
+    NoAssoc -> (flip f <$> lp <*> op <*> lp) <|> lp
+  where lp = uberExpr xs ep f
 
 -- Парсер для выражений над +, -, *, /, ^ (возведение в степень)
 -- с естественными приоритетами и ассоциативностью над натуральными числами с 0.
 -- В строке могут быть скобки
 parseExpr :: Parser String String AST
-parseExpr = error "parseExpr undefined"
+parseExpr = uberExpr [ (parseOp' '+' <|> parseOp' '-', LeftAssoc)
+                     , (parseOp' '*' <|> parseOp' '/', LeftAssoc)
+                     , (parseOp' '^', RightAssoc) ]
+                     (Num <$> parseNum <|> symbol '(' *> parseExpr <* symbol ')')
+                     BinOp
 
 -- Парсер для натуральных чисел с 0
 parseNum :: Parser String String Int
-parseNum = foldl (\acc d -> 10 * acc + digitToInt d) 0 `fmap'` go
+parseNum = foldl (\acc d -> 10 * acc + digitToInt d) 0 `fmap` go
   where
     go :: Parser String String String
-    go = some' (satisfy isDigit)
+    go = some (satisfy isDigit)
 
 -- Парсер для операторов
 parseOp :: Parser String String Operator
-parseOp = elem' `bind'` toOperator
+parseOp = elem' >>= toOperator
+
+parseOp' :: Char -> Parser String String Operator
+parseOp' op = symbol op >>= toOperator
 
 -- Преобразование символов операторов в операторы
 toOperator :: Char -> Parser String String Operator
