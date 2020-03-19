@@ -61,6 +61,7 @@ toOperator '+' = success Plus
 toOperator '*' = success Mult
 toOperator '-' = success Minus
 toOperator '/' = success Div
+toOperator '^' = success Exp
 toOperator _   = fail' "Failed toOperator"
 
 evaluate :: String -> Maybe Int
