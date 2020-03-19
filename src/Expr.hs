@@ -1,9 +1,10 @@
 module Expr where
 
 import           AST         (AST (..), Operator (..))
-import           Combinators (Parser (..), Result (..), bind', elem', fail',
-                              fmap', satisfy, some', success)
-import           Data.Char   (digitToInt, isDigit)
+import           Combinators (Parser (..), Result (..), elem', fail',
+                              satisfy, success, symbol, string)
+import           Data.Char   (digitToInt, isDigit, isLetter)
+import           Control.Applicative
 
 data Associativity
   = LeftAssoc  -- 1 @ 2 @ 3 @ 4 = (((1 @ 2) @ 3) @ 4)
@@ -16,35 +17,81 @@ uberExpr :: Monoid e
          -> Parser e i ast -- парсер для элементарного выражения
          -> (op -> ast -> ast -> ast) -- функция для создания абстрактного синтаксического дерева для бинарного оператора
          -> Parser e i ast
-uberExpr = error "uberExpr undefined"
+uberExpr [] ep _               = ep
+uberExpr ((op, assoc):xs) ep f = 
+  case assoc of
+    LeftAssoc -> do
+      first <- lp
+      rest <- many $ (flip (,)) <$> op <*> lp
+      return $ foldl (flip $ uncurry $ flip $ flip . f) first rest  
+    RightAssoc -> do
+      rest <- many $ (,) <$> lp <*> op
+      first <- lp
+      return $ foldr (uncurry $ flip f) first rest
+    NoAssoc -> (flip f <$> lp <*> op <*> lp) <|> lp
+  where lp = uberExpr xs ep f
 
 -- Парсер для выражений над +, -, *, /, ^ (возведение в степень)
 -- с естественными приоритетами и ассоциативностью над натуральными числами с 0.
 -- В строке могут быть скобки
 parseExpr :: Parser String String AST
-parseExpr = error "parseExpr undefined"
+parseExpr = uberExpr [(parseOp' "||", RightAssoc),
+                     (parseOp' "&&", LeftAssoc),
+                     (parseOp' "==" <|> parseOp' "/=" <|> parseOp' "<=" <|> parseOp' "<" <|> parseOp' ">=" <|> parseOp' ">", NoAssoc),
+                     (parseOp' "+" <|> parseOp' "-", LeftAssoc),
+                     (parseOp' "*" <|> parseOp' "/", LeftAssoc),
+                     (parseOp' "^", RightAssoc)]
+                     (Num <$> parseNum <|> Ident <$> parseIdent <|> symbol '(' *> parseExpr <* symbol ')')
+                     BinOp
 
 -- Парсер для целых чисел
 parseNum :: Parser String String Int
-parseNum = foldl (\acc d -> 10 * acc + digitToInt d) 0 `fmap'` go
+parseNum = foldl (\acc d -> f acc d) 0 `fmap` go
   where
     go :: Parser String String String
-    go = some' (satisfy isDigit)
+    go = do 
+      t <- many (symbol '-')
+      s <- some (satisfy isDigit)
+      return $ s ++ t
+    f acc '-' = -acc
+    f acc n   = 10 * acc + (digitToInt n)
 
 parseIdent :: Parser String String String
-parseIdent = error "parseIdent undefined"
+parseIdent = do
+  b <- some ((satisfy isLetter) <|> (symbol '_'))
+  m <- many ((satisfy isLetter) <|> (symbol '_') <|> (satisfy isDigit))
+  e <- many (symbol '\'')
+  return $ b ++ m ++ e
+
+parseString :: [String] -> Parser String String String
+parseString [s]    = (string s)
+parseString (x:xs) = (string x) <|> parseString xs
+
+operators = ["+", "-", "*", "/=", "/", "==", "=", "<=", ">=", "<", ">", "||", "&&", "^"]
 
 -- Парсер для операторов
 parseOp :: Parser String String Operator
-parseOp = elem' `bind'` toOperator
+parseOp = (parseString operators) >>= toOperator
+
+parseOp' :: String -> Parser String String Operator
+parseOp' op = string op >>= toOperator
 
 -- Преобразование символов операторов в операторы
-toOperator :: Char -> Parser String String Operator
-toOperator '+' = success Plus
-toOperator '*' = success Mult
-toOperator '-' = success Minus
-toOperator '/' = success Div
-toOperator _   = fail' "Failed toOperator"
+toOperator :: String -> Parser String String Operator
+toOperator "+"  = success Plus
+toOperator "*"  = success Mult
+toOperator "-"  = success Minus
+toOperator "/"  = success Div
+toOperator "^"  = success Pow
+toOperator "||" = success Or
+toOperator "&&" = success And
+toOperator "==" = success Equal
+toOperator "/=" = success Nequal
+toOperator "<=" = success Le
+toOperator "<"  = success Lt
+toOperator ">=" = success Ge
+toOperator ">"  = success Gt
+toOperator _    = fail' "Failed toOperator"
 
 evaluate :: String -> Maybe Int
 evaluate input = do
