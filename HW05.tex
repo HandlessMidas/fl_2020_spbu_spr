@@ -1,0 +1,96 @@
+\documentclass[12pt]{article}
+\usepackage[left=2cm,right=2cm,top=2cm,bottom=2cm,bindingoffset=0cm]{geometry}
+\usepackage[utf8x]{inputenc}
+\usepackage[english,russian]{babel}
+\usepackage{cmap}
+\usepackage{amssymb}
+\usepackage{amsmath}
+\usepackage{url}
+\usepackage{pifont}
+\usepackage{tikz}
+\usepackage{verbatim}
+\usepackage[most]{tcolorbox}
+
+\usetikzlibrary{shapes,arrows}
+\usetikzlibrary{positioning,automata}
+\tikzset{every state/.style={minimum size=0.2cm},
+initial text={}
+}
+
+\newenvironment{myauto}[1][3]
+{
+  \begin{center}
+    \begin{tikzpicture}[> = stealth,node distance=#1cm, on grid, very thick]
+}
+{
+    \end{tikzpicture}
+  \end{center}
+}
+
+
+\begin{document}
+\begin{center} {\LARGE HW05} \end{center}
+
+\bigskip
+
+\begin{enumerate}
+\item[2.]
+$S \to RS|R$\\
+$R \to aSb|cRd|ab|cd|\epsilon$\\\\
+Добавим стартовый нетерминал:\\
+$S_{start} \to S$\\
+$S \to RS|R$\\
+$R \to aSb|cRd|ab|cd|\epsilon$\\\\
+Избавимся от неодиночных терминалов:\\
+$S_{start} \to S$\\
+$S \to RS|R$\\
+$R \to ASB|CRD|AB|CD|\epsilon$\\
+$A \to a$\\
+$B \to b$\\
+$C \to c$\\
+$D \to d$\\\\
+Устраним длинные правила:\\
+$S_{start} \to S$\\
+$S \to RS|R$\\
+$R \to AQ|CP|AB|CD|\epsilon$\\
+$A \to a$\\
+$B \to b$\\
+$C \to c$\\
+$D \to d$\\
+$Q \to SB$\\
+$P \to RD$\\\\
+Устраним $\epsilon$-правила:\\
+$S_{start} \to S|\epsilon$\\
+$S \to RS|R|S$\\
+$R \to AQ|CP|AB|CD$\\
+$A \to a$\\
+$B \to b$\\
+$C \to c$\\
+$D \to d$\\
+$Q \to SB|B$\\
+$P \to RD|D$\\\\
+Устраним цепные правила:\\
+$S_{start}\to RS|AQ|CP|AB|CD|\epsilon$\\
+$S \to RS|AQ|CP|AB|CD$\\
+$R \to AQ|CP|AB|CD$\\
+$A \to a$\\
+$B \to b$\\
+$C \to c$\\
+$D \to d$\\
+$Q \to SB|b$\\
+$P \to RD|d$\\
+
+Done.
+\item[3.] КС грамматика для языка:\\
+$S \to aaS|aSb|Sbb|ab|aa|bb$\\
+Поймем, что у нас получаются все слова вида $a^nb^m$, $n + m > 0$, $(n + m) \, \vdots \, 2$ и только они.\\
+Сначала то, что все. Рассмотрим случаи:\\
+1) $m = 0 \Rightarrow n>0$ - чётное.\\
+Применим $\frac{n}{2} - 1$ раз $S \to Sbb$ и один раз $S \to bb$. Получим $S \to Sbb \to \dots \to Sbb \dots bb \to b^n$ (если n = 0, то то же самое)\\
+2) $m, n > 0$, чётные.\\
+Применим $\frac{n}{2}$ раз $S \to Sbb$,  $\frac{m}{2}-1$ раз $S \to aaS$, и один раз $S \to aa$\\
+3) $m, n > 0$, нечётные.\\
+Применим $\frac{n-1}{2}$ раз  $S \to Sbb$,  $\frac{m-1}{2}$ раз $S \to aaS$, и один раз $S \to ab$\\\\
+Теперь докажем, что никакие другие не получатся. Понятно, что нет пустого слова. Понятно (например по индукции), что все буквы a левее букв b. А так как в каждом правиле четность суммы сохраняется, то и в конце она тоже четная.
+ \end{enumerate}
+\end{document}
