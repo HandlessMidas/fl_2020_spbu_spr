@@ -20,20 +20,25 @@ uberExpr :: Monoid e
          -> (op -> ast -> ast -> ast) -- конструктор узла дерева для бинарной операции
          -> (op -> ast -> ast)        -- конструктор узла для унарной операции
          -> Parser e i ast
-uberExpr [] ep _ _             = ep
-uberExpr ((op, assoc):xs) ep bin un = 
+uberExpr [] ep _ _                   = ep
+uberExpr ((op, assoc):pars) ep bin un =
   case assoc of
-    Unary            -> un <$> op <*> lp <|> lp
-    Binary LeftAssoc -> do
-      first <- lp
-      rest <- many $ (flip (,)) <$> op <*> lp
-      return $ foldl (flip $ uncurry $ flip $ flip . bin) first rest  
+    Unary -> un <$> op <*> lp <|> lp
+    Binary NoAssoc    -> do
+        l <- lp
+        opp <- op
+        r <- lp
+        return $ bin opp l r
+      <|> lp
+    Binary LeftAssoc  -> do
+        (f, s) <- (,) <$> lp <*> (many ((,) <$> op <*> lp))
+        return $ foldl (\l (opp, r) -> bin opp l r) f s
+      <|> lp
     Binary RightAssoc -> do
-      rest <- many $ (,) <$> lp <*> op
-      first <- lp
-      return $ foldr (uncurry $ flip bin) first rest
-    Binary NoAssoc    -> (flip bin <$> lp <*> op <*> lp) <|> lp
-  where lp = uberExpr xs ep bin un
+        (f, s) <- (,) <$> (many ((,) <$> lp <*> op)) <*> lp
+        return $ foldr (\(r, op) l -> bin op r l) s f
+      <|> lp
+    where lp = uberExpr pars ep bin un
 
 
 -- Парсер для выражений над +, -, *, /, ^ (возведение в степень)
