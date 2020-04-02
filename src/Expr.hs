@@ -20,45 +20,44 @@ uberExpr :: Monoid e
          -> (op -> ast -> ast -> ast) -- конструктор узла дерева для бинарной операции
          -> (op -> ast -> ast)        -- конструктор узла для унарной операции
          -> Parser e i ast
-uberExpr [] ep _               = ep
-uberExpr ((op, assoc):xs) ep f = 
+uberExpr [] ep _ _             = ep
+uberExpr ((op, assoc):xs) ep bin un = 
   case assoc of
-    LeftAssoc -> do
+    Unary            -> un <$> op <*> lp <|> lp
+    Binary LeftAssoc -> do
       first <- lp
       rest <- many $ (flip (,)) <$> op <*> lp
-      return $ foldl (flip $ uncurry $ flip $ flip . f) first rest  
-    RightAssoc -> do
+      return $ foldl (flip $ uncurry $ flip $ flip . bin) first rest  
+    Binary RightAssoc -> do
       rest <- many $ (,) <$> lp <*> op
       first <- lp
-      return $ foldr (uncurry $ flip f) first rest
-    NoAssoc -> (flip f <$> lp <*> op <*> lp) <|> lp
-  where lp = uberExpr xs ep f
+      return $ foldr (uncurry $ flip bin) first rest
+    Binary NoAssoc    -> (flip bin <$> lp <*> op <*> lp) <|> lp
+  where lp = uberExpr xs ep bin un
 
 
 -- Парсер для выражений над +, -, *, /, ^ (возведение в степень)
 -- с естественными приоритетами и ассоциативностью над натуральными числами с 0.
 -- В строке могут быть скобки
 parseExpr :: Parser String String AST
-parseExpr = uberExpr [(parseOp' "||", RightAssoc),
-                     (parseOp' "&&", LeftAssoc),
-                     (parseOp' "==" <|> parseOp' "/=" <|> parseOp' "<=" <|> parseOp' "<" <|> parseOp' ">=" <|> parseOp' ">", NoAssoc),
-                     (parseOp' "+" <|> parseOp' "-", LeftAssoc),
-                     (parseOp' "*" <|> parseOp' "/", LeftAssoc),
-                     (parseOp' "^", RightAssoc)]
+parseExpr = uberExpr [(parseOp' "||", Binary RightAssoc),
+                     (parseOp' "&&", Binary RightAssoc),
+                     (parseOp' "!", Unary),
+                     (parseOp' "==" <|> parseOp' "/=" <|> parseOp' "<=" <|> parseOp' "<" <|> parseOp' ">=" <|> parseOp' ">", Binary NoAssoc),
+                     (parseOp' "+" <|> parseOp' "-", Binary LeftAssoc),
+                     (parseOp' "*" <|> parseOp' "/", Binary LeftAssoc),
+                     (parseOp' "-", Unary),
+                     (parseOp' "^", Binary RightAssoc)]
                      (Num <$> parseNum <|> Ident <$> parseIdent <|> symbol '(' *> parseExpr <* symbol ')')
                      BinOp
+                     UnaryOp
 
 -- Парсер для целых чисел
 parseNum :: Parser String String Int
-parseNum = foldl (\acc d -> f acc d) 0 `fmap` go
+parseNum = foldl (\acc d -> 10 * acc + digitToInt d) 0 `fmap` go
   where
     go :: Parser String String String
-    go = do 
-      t <- many (symbol '-')
-      s <- some (satisfy isDigit)
-      return $ s ++ t
-    f acc '-' = -acc
-    f acc n   = 10 * acc + (digitToInt n)
+    go = some (satisfy isDigit)
 
 parseIdent :: Parser String String String
 parseIdent = do
@@ -71,7 +70,7 @@ parseString :: [String] -> Parser String String String
 parseString [s]    = (string s)
 parseString (x:xs) = (string x) <|> parseString xs
 
-operators = ["+", "-", "*", "/=", "/", "==", "=", "<=", ">=", "<", ">", "||", "&&", "^"]
+operators = ["+", "-", "*", "/=", "/", "==", "=", "<=", ">=", "<", ">", "||", "&&", "^", "!"]
 
 -- Парсер для операторов
 parseOp :: Parser String String Operator
@@ -79,6 +78,12 @@ parseOp = (parseString operators) >>= toOperator
 
 parseOp' :: String -> Parser String String Operator
 parseOp' op = string op >>= toOperator
+
+parseSpaces :: Parser String String String
+parseSpaces = many $ symbol ' ' <|> symbol '\n'
+
+parseAccurate :: String -> Parser String String String
+parseAccurate = foldr (\fst rest -> fmap (:) (symbol fst) <*> rest) $ pure ""
 
 -- Преобразование символов операторов в операторы
 toOperator :: String -> Parser String String Operator
@@ -95,6 +100,7 @@ toOperator "<=" = success Le
 toOperator "<"  = success Lt
 toOperator ">=" = success Ge
 toOperator ">"  = success Gt
+toOperator "!"  = success Not
 toOperator _    = fail' "Failed toOperator"
 
 evaluate :: String -> Maybe Int
