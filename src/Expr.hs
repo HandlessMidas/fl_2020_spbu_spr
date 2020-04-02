@@ -11,11 +11,14 @@ data Associativity
   | RightAssoc -- 1 @ 2 @ 3 @ 4 = (1 @ (2 @ (3 @ 4))
   | NoAssoc    -- Может быть только между двумя операндами: 1 @ 2 -- oк; 1 @ 2 @ 3 -- не ок
 
--- Универсальный парсер выражений
+data OpType = Binary Associativity
+            | Unary
+
 uberExpr :: Monoid e
-         => [(Parser e i op, Associativity)] -- список парсеров бинарных операторов с ассоциативностями в порядке повышения приоритета
-         -> Parser e i ast -- парсер для элементарного выражения
-         -> (op -> ast -> ast -> ast) -- функция для создания абстрактного синтаксического дерева для бинарного оператора
+         => [(Parser e i op, OpType)] -- список операций с их арностью и, в случае бинарных, ассоциативностью
+         -> Parser e i ast            -- парсер элементарного выражения
+         -> (op -> ast -> ast -> ast) -- конструктор узла дерева для бинарной операции
+         -> (op -> ast -> ast)        -- конструктор узла для унарной операции
          -> Parser e i ast
 uberExpr [] ep _               = ep
 uberExpr ((op, assoc):xs) ep f = 
@@ -30,6 +33,7 @@ uberExpr ((op, assoc):xs) ep f =
       return $ foldr (uncurry $ flip f) first rest
     NoAssoc -> (flip f <$> lp <*> op <*> lp) <|> lp
   where lp = uberExpr xs ep f
+
 
 -- Парсер для выражений над +, -, *, /, ^ (возведение в степень)
 -- с естественными приоритетами и ассоциативностью над натуральными числами с 0.
