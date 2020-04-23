@@ -2,7 +2,7 @@ module LLang where
 
 import           AST         (AST (..), Operator (..), Subst (..))
 import           Combinators (Parser (..))
-import           Expr (parseExpr, parseNum, parseIdent, parseOp, parseAccurate, parseSpaces, evalExpr)
+import           Expr (parseExpr, parseNum, parseIdent, parseOp, parseAccurate, parseSpaces, compute)
 import           Control.Applicative
 import           Data.List   (intercalate)
 import qualified Data.Map    as Map
@@ -121,7 +121,14 @@ parseDef = do
   parseAccurate ")"
   parseSpaces
   body <- parseSeq
-  return $ Function name args body
+  parseSpaces
+  parseAccurate "retrun"
+  parseSpaces
+  expr <- parseBrackets
+  parseSpaces
+  parseAccurate ";"
+  parseSpaces
+  return $ Function name args body expr
 
 
 parseProg :: Parser String String Program
@@ -132,35 +139,68 @@ parseProg = Parser $ \input -> runParser' parseProg' input where
     return $ Program funcs main
 
 initialConf :: [Int] -> Configuration
-initialConf input = Conf Map.empty input []
+initialConf input = Conf Map.empty input [] Map.empty
+
+evalFunction :: Configuration -> Function -> [Int] -> Maybe (Configuration, Int)
+evalFunction (Conf subst in' out' funcs) (Function _ args (Seq ins) res) value =
+  case eval (Seq $ ins ++ [Write res]) (Conf (Map.fromList $ zip args value) in' out' funcs) of
+    Just (Conf _ in' (res:out'') _) -> Just (Conf subst in' out'' funcs, res)
+    _                                -> Nothing
+evalFunction conf (Function name args ins res) value =
+  evalFunction conf (Function name args (Seq [ins]) res) value
+
+evalExpr :: Configuration -> AST -> Maybe (Configuration, Int)
+evalExpr conf (Num x)                                   = Just (conf, x)
+evalExpr conf@(Conf subst _ _ _) (Ident x)              = (,) conf <$> Map.lookup x subst
+evalExpr conf (UnaryOp op x)                            = do
+                                                          (conf', x') <- evalExpr conf x
+                                                          return $ (conf', compute $ UnaryOp op (Num x'))
+evalExpr conf (BinOp op l r)                            = do
+                                                          (conf', l') <- evalExpr conf l
+                                                          (conf'', r') <- evalExpr conf' r
+                                                          return $ (conf'', compute $ BinOp op (Num l') (Num r'))
+
+evalExpr conf@(Conf _ _ _ funcs) (FunctionCall name args) = do
+      (conf'@(Conf subst _ _ funcs'), value) <- res
+      f <- Map.lookup name funcs
+      (Conf _ in' out' funcs', res') <- evalFunction conf' f value
+      return $ (Conf subst in' out' funcs', res')
+    where
+      res = foldl f (Just (conf, [])) args
+        where
+          f var expr = do
+            (conf', rest) <- var
+            (conf'', res) <- evalExpr conf' expr
+            return $ (conf'', rest ++ [res])
+
 
 eval :: LAst -> Configuration -> Maybe Configuration 
-eval (If cond seq1 seq2) config@(Conf subst input output) = do
-    resCond <- evalExpr subst cond
-    case resCond of
-      0 -> eval seq2 config
-      _ -> eval seq1 config
+eval (If cond seq1 seq2) conf = do
+    (conf', res) <- evalExpr conf cond
+    case res of
+      0 -> eval seq2 conf'
+      _ -> eval seq1 conf'
 
-eval while@(While cond seq) config@(Conf subst input output) = do
-    resCond <- evalExpr subst cond
-    case resCond of
-      0 -> return config
+eval while@(While cond seq) conf = do
+    (conf', res) <- evalExpr conf cond
+    case res of
+      0 -> return conf'
       _ -> do
-        config' <- eval seq config
+        config' <- eval seq conf'
         eval while config'
 
-eval (Assign name expr) (Conf subst input output) = do
-    resExpr <- evalExpr subst expr
-    return $ Conf (Map.insert name resExpr subst) input output
+eval (Assign name expr) conf = do
+    (Conf subst input' output' funcs, res) <- evalExpr conf expr
+    return $ Conf (Map.insert name res subst) input' output' funcs
 
-eval (Read name) (Conf subst input output) =
+eval (Read name) (Conf subst input output funcs) =
   case input of
-    (x:rest) -> return $ Conf (Map.insert name x subst) rest output
+    (x:rest) -> return $ Conf (Map.insert name x subst) rest output funcs
     _      -> Nothing
 
-eval (Write expr) (Conf subst input output) = do
-    resExpr <- evalExpr subst expr
-    return $ Conf subst input (resExpr:output)
+eval (Write expr) conf = do
+  (Conf subst input' output' funcs, res) <- evalExpr conf expr
+  return $ Conf subst input' (res:output') funcs
 
 eval (Seq instr) config =
   case instr of
