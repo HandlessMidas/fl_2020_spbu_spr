@@ -41,15 +41,6 @@ unit_parseNum = do
     testFailure (runParser parseNum "+3")
     testFailure (runParser parseNum "a")
 
-unit_parseNegNum :: Assertion
-unit_parseNegNum = do
-    runParser parseNegNum "123" @?= Success (toStream "" 3) (123)
-    runParser parseNegNum "-123" @?= Success (toStream "" 4) (-123)
-    runParser parseNegNum "--123" @?= Success (toStream "" 5) (123)
-    testFailure $ runParser parseNegNum "+-3"
-    testFailure $ runParser parseNegNum "-+3"
-    testFailure $ runParser parseNegNum "-a"
-
 unit_parseIdent :: Assertion
 unit_parseIdent = do
     runParser parseIdent "abc def" @?= Success (toStream " def" 3) "abc"
@@ -110,7 +101,7 @@ unit_parseExpr = do
     runParser parseExpr "-(!1)" @?= Success (toStream "" 5) (UnaryOp Minus (UnaryOp Not (Num 1)))
     runParser parseExpr "-1---2" @?= Success (toStream "---2" 2) (UnaryOp Minus (Num 1))
     runParser parseExpr "-1^-2" @?= Success (toStream "^-2" 2) (UnaryOp Minus (Num 1))
-
+    
     testFailure $ runParser parseExpr "--1"
     testFailure $ runParser parseExpr "-!1"
 

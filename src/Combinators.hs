@@ -1,3 +1,4 @@
+
 {-# LANGUAGE FlexibleInstances #-}
 
 module Combinators where
@@ -35,16 +36,27 @@ incrPos :: InputStream a -> InputStream a
 incrPos (InputStream str pos) = InputStream str (pos + 1)
 
 instance Functor (Parser error input) where
-  fmap = error "fmap not implemented"
+  fmap f p = Parser runParser'' where
+    runParser'' input = case (runParser' p input) of
+      Failure error         -> Failure error
+      Success input' result -> Success input' (f result) 
 
 instance Applicative (Parser error input) where
-  pure = error "pure not implemented"
-  (<*>) = error "<*> not implemented"
+  pure result = Parser (\input -> Success input result) 
+  p1 <*> p2 = Parser runParser'' where
+    runParser'' input = case (runParser' p1 input) of
+      Failure error          -> Failure error
+      Success input' result1 -> case (runParser' p2 input') of
+        Failure error           -> Failure error 
+        Success input'' result2 -> Success input'' (result1 result2)
 
 instance Monad (Parser error input) where
-  return = error "return not implemented"
+  return = pure 
 
-  (>>=) = error ">>= not implemented"
+  p >>= f = Parser runParser'' where
+    runParser'' input = case (runParser' p input) of
+      Failure error         -> Failure error
+      Success input' result -> (runParser' (f result) input')
 
 instance Monoid error => Alternative (Parser error input) where
   empty = Parser $ \input -> Failure [makeError mempty (curPos input)]
@@ -115,3 +127,10 @@ instance Show (ErrorMsg String) where
 instance (Show input, Show result) => Show (Result String input result) where
   show (Failure e) = "Parsing failed\n" ++ unlines (map show e)
   show (Success i r) = "Parsing succeeded!\nResult:\n" ++ show r ++ "\nSuffix:\t" ++ show i
+
+string :: String -> Parser String String String
+string [] = success ""
+string (x:xs) = do 
+  c <- symbol x
+  s <- string xs
+  return $ c:s
