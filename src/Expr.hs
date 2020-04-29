@@ -54,9 +54,23 @@ parseExpr = uberExpr [(parseOp' "||", Binary RightAssoc),
                      (parseOp' "*" <|> parseOp' "/", Binary LeftAssoc),
                      (parseOp' "-", Unary),
                      (parseOp' "^", Binary RightAssoc)]
-                     (Num <$> parseNum <|> Ident <$> parseIdent <|> symbol '(' *> parseExpr <* symbol ')')
+                     (spaces (Num <$> parseNum) <|> spaces parseFunctionCall <|> spaces (Ident <$> parseIdent) <|> spaces (symbol '(' *> parseExpr <* symbol ')'))
                      BinOp
                      UnaryOp
+    where spaces f = parseSpaces *> f <* parseSpaces
+
+parseArgs :: Parser String String [AST]
+parseArgs = (fmap (:) parseExpr <*> many (parseSpaces *> parseAccurate "," *> parseSpaces *> parseExpr)) <|> pure []
+
+parseFunctionCall :: Parser String String AST
+parseFunctionCall = do
+    var <- parseIdent
+    parseAccurate "("
+    parseSpaces
+    args <- parseArgs
+    parseSpaces
+    parseAccurate ")"
+    return $ FunctionCall var args
 
 -- Парсер для целых чисел
 parseNum :: Parser String String Int
