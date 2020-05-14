@@ -1,0 +1,70 @@
+\documentclass[12pt]{article}
+\usepackage[left=2cm,right=2cm,top=2cm,bottom=2cm,bindingoffset=0cm]{geometry}
+\usepackage[utf8x]{inputenc}
+\usepackage[english,russian]{babel}
+\usepackage{cmap}
+\usepackage{amssymb}
+\usepackage{amsmath}
+\usepackage{url}
+\usepackage{pifont}
+\usepackage{tikz}
+\usepackage{verbatim}
+\usepackage[most]{tcolorbox}
+
+\usetikzlibrary{shapes,arrows}
+\usetikzlibrary{positioning,automata}
+\tikzset{every state/.style={minimum size=0.2cm},
+	initial text={}
+}
+
+\newenvironment{myauto}[1][3]
+{
+	\begin{center}
+		\begin{tikzpicture}[> = stealth,node distance=#1cm, on grid, very thick]
+	}
+	{
+		\end{tikzpicture}
+	\end{center}
+}
+
+
+\begin{document}
+	\begin{center} {\LARGE HW 11} \end{center}
+	\begin{center} {Аргунов Данил} \end{center}
+	
+	\bigskip
+
+\begin{enumerate}
+ \item [2.] Грамматика $S \rightarrow aSbbbb | aaaSbb | c$ задаёт язык $L = \{ a^{n + 3m} \ c \ b^{4n + 2m} \}$, где $n, m \in \mathbb{Z}, n,m \geqslant 0$ - количество применений первого и второго правил соответственно. \\
+ Очевидно, что порядок применения правил неважен.\\
+ Значит можно переписать нашу грамматику в такой вид: \\
+ $S \rightarrow aSbbbb|T \\
+ T \rightarrow aaaSbb|c$ \\
+ Это однозначная грамматика, потому что по количеству $a$ и $b$ мы можем восстановить количество применений первого и второго правил. Почему так? \\
+ Пусть $w = a^{n}cb^{m}$ и мы применили $x$ раз первое правило и $y$ раз второе. \\
+ Тогда:\\
+ $x + 3y = n$\\
+ $4x + 2y = m$ \\
+ Эта система имеет единственное решение: \\
+ $x = \frac{(3m - 2n)}{10}$, $y = \frac{(4n - m)}{10}$ \\
+ Значит дерево вывода задаётся однозначно.
+ 
+ \item [3.] $F \rightarrow \varepsilon | aFaFbF$ \\
+ Заметим, что каждый раз, когда мы используем какое-нибудь правило и получаем новую букву $b$, слева от неё мы получаем две буквы $a$. Поэтому на любом префиксе букв $a$ хотя бы в 2 раза больше чем букв $b$. А так как мы всегда добавляем ровно 1 $b$ и 2 $a$, то суммарно в строке букв $b$ ровно треть.
+  
+ \item [4.] Рассмотрим грамматику: \\
+ $K \rightarrow aM | cM \\
+ M \rightarrow aK | bK | \varepsilon$ \\
+ Нетерминалы чередуются, $K$ допускает только буквы $a$ и $c$, а $M$ только буквы $a$ и $b$. Также все слова нечетной длины.\\ Слова будут вида: $(a|c)(a|b)(a|c)(a|b)\dots(a|c)$ \\ 
+ То есть в грамматике $F \rightarrow a | bF | cFF$ нам нужно чередовать правила $bF$ и $cFF$ так, чтобы не оказалось две буквы $b$ или две буквы $c$ подряд и в слове было нечётное количество букв.\\
+ В итоге получаем такое: \\
+ $C_1 \to a | cB_2B_2 | cB_1C_1$ \\
+ $C_2 \to cB_2C_1$ \\
+ $B_1 \to a | bC_2$ \\
+ $B_2 \to bC_1$ \\
+ Небольшое пояснение. Очевидно, что любой другой переход в первом правиле не может быть, потому что возникнет $bb$ или $cc$. А другие переходы отвечают за четность длины ($B_1$, $C_1$ - нечетная, $B_2$, $C_2$ - четная) и начинаются либо с $b$, либо с $c$.
+
+\end{enumerate}
+
+
+\end{document}
