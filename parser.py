@@ -9,14 +9,16 @@ tokens = (
 	'NONTERM',
 	'ARROW',
 	'SPLIT',
-	'NEWLINE'
+	'NEWLINE',
+	'EPS'
 )
 
 
-t_TERM = r'[a-z]+'
+t_TERM = r'[a-z]'
 t_NONTERM = r'[A-Z]+'
 t_ARROW = r'=>'
 t_SPLIT = r'\|'
+t_EPS = r'eps'
 
 
 def t_NEWLINE(t):
@@ -42,21 +44,28 @@ rules = defaultdict(list)
 
 
 def p_rule_single(p):
-	'''rule : NONTERM ARROW rhs'''
+	'''rule : NONTERM ARROW rhses'''
 	nonterms.add(p[1])
 	rules[p[1]].append(p[3])
 
 
 def p_rule_single_line(p):
-	'''rule : NONTERM ARROW rhs NEWLINE'''
+	'''rule : NONTERM ARROW rhses NEWLINE'''
 	nonterms.add(p[1])
 	rules[p[1]].append(p[3])
 
 def p_rule_multiple(p):
-	'''rule : NONTERM ARROW rhs NEWLINE rule'''
+	'''rule : NONTERM ARROW rhses NEWLINE rule'''
 	nonterms.add(p[1])
 	rules[p[1]].append(p[3])
 
+def p_rhses_single(p):
+	'''rhses : rhs'''
+	p[0] = [p[1]]
+
+def p_rhses_multiple(p):
+	'''rhses : rhs SPLIT rhses''' 
+	p[0] = [p[1].copy()] + p[3]
 
 def p_rhs_term_single(p):
 	'''rhs : TERM'''
@@ -67,11 +76,11 @@ def p_rhs_term_single(p):
 
 
 def p_rhs_term_multiple(p):
-	'''rhs : rhs SPLIT TERM'''
-	for t in p[3]:
+	'''rhs : rhs TERM'''
+	for t in p[2]:
 		terms.add(t)
 	p[0] = p[1].copy()
-	p[0].append(p[3])
+	p[0].append(p[2])
 
 
 def p_rhs_nonterm_single(p):
@@ -82,10 +91,14 @@ def p_rhs_nonterm_single(p):
 
 
 def p_rhs_nonterm_multiple(p):
-    '''rhs : rhs SPLIT NONTERM'''
-    nonterms.add(p[3])
+    '''rhs : rhs NONTERM'''
+    nonterms.add(p[2])
     p[0] = p[1].copy()
-    p[0].append(p[3])
+    p[0].append(p[2])
+
+def p_eps(p):
+    """rhs : EPS"""
+    p[0] = ['']
 
 
 syntax_error = False
@@ -118,5 +131,9 @@ if __name__ == '__main__':
 		print('Nonterms:', ' '.join(nonterms))
 		print('Rules:')
 		for (key, value) in rules.items():
-			for rhs in value:
-				print(key, '=>', ' | '.join(rhs))
+			for rhses in value:
+				print(key, '=>', end = ' ')
+				rule = []
+				for rhs in rhses:
+					rule.append(' '.join(rhs))
+				print(' | '.join(rule))

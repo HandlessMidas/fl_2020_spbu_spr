@@ -6,9 +6,9 @@ _tabversion = '3.10'
 
 _lr_method = 'LALR'
 
-_lr_signature = 'ARROW NEWLINE NONTERM SPLIT TERMrule : NONTERM ARROW rhsrule : NONTERM ARROW rhs NEWLINErule : NONTERM ARROW rhs NEWLINE rulerhs : TERMrhs : rhs SPLIT TERMrhs : NONTERMrhs : rhs SPLIT NONTERM'
+_lr_signature = 'ARROW EPS NEWLINE NONTERM SPLIT TERMrule : NONTERM ARROW rhsesrule : NONTERM ARROW rhses NEWLINErule : NONTERM ARROW rhses NEWLINE rulerhses : rhsrhses : rhs SPLIT rhsesrhs : TERMrhs : rhs TERMrhs : NONTERMrhs : rhs NONTERMrhs : EPS'
     
-_lr_action_items = {'NONTERM':([0,3,7,8,],[2,4,2,11,]),'$end':([1,4,5,6,7,9,10,11,],[0,-6,-1,-4,-2,-3,-5,-7,]),'ARROW':([2,],[3,]),'TERM':([3,8,],[6,10,]),'NEWLINE':([4,5,6,10,11,],[-6,7,-4,-5,-7,]),'SPLIT':([4,5,6,10,11,],[-6,8,-4,-5,-7,]),}
+_lr_action_items = {'NONTERM':([0,3,4,6,7,8,9,10,11,12,],[2,4,-8,12,-6,-10,2,4,-7,-9,]),'$end':([1,4,5,6,7,8,9,11,12,13,14,],[0,-8,-1,-4,-6,-10,-2,-7,-9,-3,-5,]),'ARROW':([2,],[3,]),'TERM':([3,4,6,7,8,10,11,12,],[7,-8,11,-6,-10,7,-7,-9,]),'EPS':([3,10,],[8,8,]),'SPLIT':([4,6,7,8,11,12,],[-8,10,-6,-10,-7,-9,]),'NEWLINE':([4,5,6,7,8,11,12,14,],[-8,9,-4,-6,-10,-7,-9,-5,]),}
 
 _lr_action = {}
 for _k, _v in _lr_action_items.items():
@@ -17,7 +17,7 @@ for _k, _v in _lr_action_items.items():
       _lr_action[_x][_k] = _y
 del _lr_action_items
 
-_lr_goto_items = {'rule':([0,7,],[1,9,]),'rhs':([3,],[5,]),}
+_lr_goto_items = {'rule':([0,9,],[1,13,]),'rhses':([3,10,],[5,14,]),'rhs':([3,10,],[6,6,]),}
 
 _lr_goto = {}
 for _k, _v in _lr_goto_items.items():
@@ -27,11 +27,14 @@ for _k, _v in _lr_goto_items.items():
 del _lr_goto_items
 _lr_productions = [
   ("S' -> rule","S'",1,None,None,None),
-  ('rule -> NONTERM ARROW rhs','rule',3,'p_rule_single','grammar.py',43),
-  ('rule -> NONTERM ARROW rhs NEWLINE','rule',4,'p_rule_single_line','grammar.py',49),
-  ('rule -> NONTERM ARROW rhs NEWLINE rule','rule',5,'p_rule_multiple','grammar.py',53),
-  ('rhs -> TERM','rhs',1,'p_rhs_term_single','grammar.py',59),
-  ('rhs -> rhs SPLIT TERM','rhs',3,'p_rhs_term_multiple','grammar.py',67),
-  ('rhs -> NONTERM','rhs',1,'p_rhs_nonterm_single','grammar.py',75),
-  ('rhs -> rhs SPLIT NONTERM','rhs',3,'p_rhs_nonterm_multiple','grammar.py',82),
+  ('rule -> NONTERM ARROW rhses','rule',3,'p_rule_single','parser.py',47),
+  ('rule -> NONTERM ARROW rhses NEWLINE','rule',4,'p_rule_single_line','parser.py',53),
+  ('rule -> NONTERM ARROW rhses NEWLINE rule','rule',5,'p_rule_multiple','parser.py',58),
+  ('rhses -> rhs','rhses',1,'p_rhses_single','parser.py',63),
+  ('rhses -> rhs SPLIT rhses','rhses',3,'p_rhses_multiple','parser.py',67),
+  ('rhs -> TERM','rhs',1,'p_rhs_term_single','parser.py',71),
+  ('rhs -> rhs TERM','rhs',2,'p_rhs_term_multiple','parser.py',79),
+  ('rhs -> NONTERM','rhs',1,'p_rhs_nonterm_single','parser.py',87),
+  ('rhs -> rhs NONTERM','rhs',2,'p_rhs_nonterm_multiple','parser.py',94),
+  ('rhs -> EPS','rhs',1,'p_eps','parser.py',100),
 ]
