@@ -38,7 +38,20 @@ initial text={}
 	\item $S \rightarrow aS | aSb | ab$\\
 	Почему получаются все слова? Допустим есть слово $a^n b^m$. Применим правило $S \rightarrow aS$ $n-m$ раз, потом $m-1$ раз правило $S \rightarrow aSb$ и наконец один раз $S \rightarrow ab$.\\
 	Почему только они? Очевидно, что буквы $a$ всегда левве букв $b$ и их точно больше либо равно. Третье правило нужно, чтобы $n, m \geqslant 1$.
-	\item 
-	
+	\item Пусть наш язык LL(1). Рассмотрим такой язык. $L' = \{a^mb^n \, | \, n > m \geqslant 1\}$.\\
+	 И $L$, и $L'$ - нерегулярные по лемме о накачке.\\ $L'$ - LL(1) с такой вот грамматикой:\\
+	$S \rightarrow AbB\\
+	 A \rightarrow aAb | \varepsilon\\
+	 B \rightarrow bB  | \varepsilon$\\
+	 Покажем это.\\
+	 FIRST$(S) = \{a, b, \varepsilon\}\\$
+	 FIRST$(A) = \{a, \varepsilon\}\\$
+	 FIRST$(B) = \{b, \varepsilon\}\\$
+	 FOLLOW$(S) = \{\$\}\\$
+	 FOLLOW$(A) = \{b\}\\$
+	 FOLLOW$(B) = \{b, \$\}\\$
+	 Отсюда очевидно, что это LL(1) грамматика\\
+	 $L \cap L' = \emptyset$\\
+	 $L \cup L' = \{a^mb^n\, | \, n, m \in \mathbb{N} \}$ - регулярный язык. Но если конечное объединение LL(k) языков регулярно, то они все регулярны. Противоречие. 
 \end{enumerate}
 \end{document} 
