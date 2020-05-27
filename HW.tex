@@ -1,0 +1,44 @@
+\documentclass[12pt]{article}
+\usepackage[left=2cm,right=2cm,top=2cm,bottom=2cm,bindingoffset=0cm]{geometry}
+\usepackage[utf8x]{inputenc}
+\usepackage[english,russian]{babel}
+\usepackage{cmap}
+\usepackage{amssymb}
+\usepackage{amsmath}
+\usepackage{url}
+\usepackage{pifont}
+\usepackage{tikz}
+\usepackage{verbatim}
+\usepackage[most]{tcolorbox}
+
+\usetikzlibrary{shapes,arrows}
+\usetikzlibrary{positioning,automata}
+\tikzset{every state/.style={minimum size=0.2cm},
+initial text={}
+}
+
+\newenvironment{myauto}[1][3]
+{
+  \begin{center}
+    \begin{tikzpicture}[> = stealth,node distance=#1cm, on grid, very thick]
+}
+{
+    \end{tikzpicture}
+  \end{center}
+}
+
+
+\begin{document}
+\begin{center} {\LARGE Домашнее задание на зачет} \end{center}
+\begin{center} {Аргунов Данил, Б09} \end{center}
+
+\bigskip
+	
+\begin{enumerate}
+	\item $S \rightarrow aS | aSb | ab$\\
+	Почему получаются все слова? Допустим есть слово $a^n b^m$. Применим правило $S \rightarrow aS$ $n-m$ раз, потом $m-1$ раз правило $S \rightarrow aSb$ и наконец один раз $S \rightarrow ab$.\\
+	Почему только они? Очевидно, что буквы $a$ всегда левве букв $b$ и их точно больше либо равно. Третье правило нужно, чтобы $n, m \geqslant 1$.
+	\item 
+	
+\end{enumerate}
+\end{document} 

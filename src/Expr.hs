@@ -35,12 +35,8 @@ uberExpr ((op, assoc):xs) ep f =
 -- с естественными приоритетами и ассоциативностью над натуральными числами с 0.
 -- В строке могут быть скобки
 parseExpr :: Parser String String AST
-parseExpr = uberExpr [(parseOp' "||", RightAssoc),
-                     (parseOp' "&&", LeftAssoc),
-                     (parseOp' "==" <|> parseOp' "/=" <|> parseOp' "<=" <|> parseOp' "<" <|> parseOp' ">=" <|> parseOp' ">", NoAssoc),
-                     (parseOp' "+" <|> parseOp' "-", LeftAssoc),
-                     (parseOp' "*" <|> parseOp' "/", LeftAssoc),
-                     (parseOp' "^", RightAssoc)]
+parseExpr = uberExpr [(parseOp' "+", LeftAssoc),
+                     (parseOp' "*", LeftAssoc)]
                      (Num <$> parseNum <|> Ident <$> parseIdent <|> symbol '(' *> parseExpr <* symbol ')')
                      BinOp
 
@@ -67,7 +63,7 @@ parseString :: [String] -> Parser String String String
 parseString [s]    = (string s)
 parseString (x:xs) = (string x) <|> parseString xs
 
-operators = ["+", "-", "*", "/=", "/", "==", "=", "<=", ">=", "<", ">", "||", "&&", "^"]
+operators = ["+", "*"]
 
 -- Парсер для операторов
 parseOp :: Parser String String Operator
@@ -80,45 +76,24 @@ parseOp' op = string op >>= toOperator
 toOperator :: String -> Parser String String Operator
 toOperator "+"  = success Plus
 toOperator "*"  = success Mult
-toOperator "-"  = success Minus
-toOperator "/"  = success Div
-toOperator "^"  = success Pow
-toOperator "||" = success Or
-toOperator "&&" = success And
-toOperator "==" = success Equal
-toOperator "/=" = success Nequal
-toOperator "<=" = success Le
-toOperator "<"  = success Lt
-toOperator ">=" = success Ge
-toOperator ">"  = success Gt
-toOperator _    = fail' "Failed toOperator"
 
-evaluate :: String -> Maybe Int
+evaluate :: String -> Maybe(AST)
 evaluate input = do
   case runParser parseExpr input of
-    Success rest ast | null rest -> return $ compute ast
+    Success rest ast | null rest -> return $ optimise ast
     _                            -> Nothing
 
-boolToInt:: Bool -> Int
-boolToInt True = 1
-boolToInt _    = 0
-
-compute :: AST -> Int
-compute (Num x)           = x
-compute (BinOp Plus x y)  = compute x + compute y
-compute (BinOp Mult x y)  = compute x * compute y
-compute (BinOp Minus x y) = compute x - compute y
-compute (BinOp Div x y)   = compute x `div` compute y
-compute (BinOp Pow x y)   = (compute x) ^ (compute y)
-compute (BinOp Or  x y)   = case (compute x) of
-                               p | p == 0 -> compute y
-                               p          -> p
-compute (BinOp And x y)   = case (compute x) of
-                               p | p /= 0 -> compute y
-                               p          -> p
-compute (BinOp Equal x y) = boolToInt $ (compute x) == (compute y)
-compute (BinOp Nequal x y) = boolToInt $ (compute x) /= (compute y)
-compute (BinOp Le     x y) = boolToInt $ (compute x) <= (compute y)
-compute (BinOp Lt     x y) = boolToInt $ (compute x) < (compute y)
-compute (BinOp Ge     x y) = boolToInt $ (compute x) >= (compute y)
-compute (BinOp Gt     x y) = boolToInt $ (compute x) > (compute y) 
+optimise :: AST -> AST
+optimise (Ident x)      = Ident x
+optimise (Num x)        = Num x
+optimise (BinOp op x y) = case (op, x', y') of
+  (Mult, _, Num 0)     -> Num 0
+  (Mult, Num 0, _)     -> Num 0
+  (Mult, Num a, Num b) -> Num (a * b)
+  (Plus, Num 0, b)     -> b
+  (Plus, a, Num 0)     -> a
+  (Plus, Num a, Num b) -> Num (a + b)
+  (op, x, y)           -> BinOp op x y  
+  where 
+    x' = optimise x
+    y' = optimise y
