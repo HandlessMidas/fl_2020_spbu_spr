@@ -48,7 +48,7 @@ def p_program(p):
 	goal = p[2]
 
 
-def p_program(p):
+def p_program_no_relation(p):
 	'''program : goal'''
 	global goal
 	goal = p[1]
