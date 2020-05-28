@@ -10,32 +10,33 @@ Rule 4     relation -> atom RELATION_SPLIT body relation
 Rule 5     relation -> atom STOP
 Rule 6     relation -> atom STOP relation
 Rule 7     goal -> GOAL_SPLIT body
-Rule 8     atom -> ID LEFT_BRACKET args RIGHT_BRACKET
-Rule 9     atom -> ID
-Rule 10    args -> VAR
-Rule 11    args -> VAR COMMA args
-Rule 12    args -> atom
-Rule 13    args -> atom COMMA args
-Rule 14    body -> atom STOP
-Rule 15    body -> atom COMMA body
+Rule 8     goal -> GOAL_SPLIT STOP
+Rule 9     atom -> ID LEFT_BRACKET args RIGHT_BRACKET
+Rule 10    atom -> ID
+Rule 11    args -> VAR
+Rule 12    args -> VAR COMMA args
+Rule 13    args -> atom
+Rule 14    args -> atom COMMA args
+Rule 15    body -> atom STOP
+Rule 16    body -> atom COMMA body
 
 Terminals, with rules where they appear
 
-COMMA                : 11 13 15
-GOAL_SPLIT           : 7
-ID                   : 8 9
-LEFT_BRACKET         : 8
+COMMA                : 12 14 16
+GOAL_SPLIT           : 7 8
+ID                   : 9 10
+LEFT_BRACKET         : 9
 RELATION_SPLIT       : 3 4
-RIGHT_BRACKET        : 8
-STOP                 : 5 6 14
-VAR                  : 10 11
+RIGHT_BRACKET        : 9
+STOP                 : 5 6 8 15
+VAR                  : 11 12
 error                : 
 
 Nonterminals, with rules where they appear
 
-args                 : 8 11 13
-atom                 : 3 4 5 6 12 13 14 15
-body                 : 3 4 7 15
+args                 : 9 12 14
+atom                 : 3 4 5 6 13 14 15 16
+body                 : 3 4 7 16
 goal                 : 1 2
 program              : 0
 relation             : 1 4 6
@@ -52,8 +53,9 @@ state 0
     (5) relation -> . atom STOP
     (6) relation -> . atom STOP relation
     (7) goal -> . GOAL_SPLIT body
-    (8) atom -> . ID LEFT_BRACKET args RIGHT_BRACKET
-    (9) atom -> . ID
+    (8) goal -> . GOAL_SPLIT STOP
+    (9) atom -> . ID LEFT_BRACKET args RIGHT_BRACKET
+    (10) atom -> . ID
 
     GOAL_SPLIT      shift and go to state 5
     ID              shift and go to state 6
@@ -73,6 +75,7 @@ state 2
 
     (1) program -> relation . goal
     (7) goal -> . GOAL_SPLIT body
+    (8) goal -> . GOAL_SPLIT STOP
 
     GOAL_SPLIT      shift and go to state 5
 
@@ -99,26 +102,28 @@ state 4
 state 5
 
     (7) goal -> GOAL_SPLIT . body
-    (14) body -> . atom STOP
-    (15) body -> . atom COMMA body
-    (8) atom -> . ID LEFT_BRACKET args RIGHT_BRACKET
-    (9) atom -> . ID
+    (8) goal -> GOAL_SPLIT . STOP
+    (15) body -> . atom STOP
+    (16) body -> . atom COMMA body
+    (9) atom -> . ID LEFT_BRACKET args RIGHT_BRACKET
+    (10) atom -> . ID
 
+    STOP            shift and go to state 11
     ID              shift and go to state 6
 
     body                           shift and go to state 10
-    atom                           shift and go to state 11
+    atom                           shift and go to state 12
 
 state 6
 
-    (8) atom -> ID . LEFT_BRACKET args RIGHT_BRACKET
-    (9) atom -> ID .
+    (9) atom -> ID . LEFT_BRACKET args RIGHT_BRACKET
+    (10) atom -> ID .
 
-    LEFT_BRACKET    shift and go to state 12
-    RELATION_SPLIT  reduce using rule 9 (atom -> ID .)
-    STOP            reduce using rule 9 (atom -> ID .)
-    COMMA           reduce using rule 9 (atom -> ID .)
-    RIGHT_BRACKET   reduce using rule 9 (atom -> ID .)
+    LEFT_BRACKET    shift and go to state 13
+    RELATION_SPLIT  reduce using rule 10 (atom -> ID .)
+    STOP            reduce using rule 10 (atom -> ID .)
+    COMMA           reduce using rule 10 (atom -> ID .)
+    RIGHT_BRACKET   reduce using rule 10 (atom -> ID .)
 
 
 state 7
@@ -132,15 +137,15 @@ state 8
 
     (3) relation -> atom RELATION_SPLIT . body
     (4) relation -> atom RELATION_SPLIT . body relation
-    (14) body -> . atom STOP
-    (15) body -> . atom COMMA body
-    (8) atom -> . ID LEFT_BRACKET args RIGHT_BRACKET
-    (9) atom -> . ID
+    (15) body -> . atom STOP
+    (16) body -> . atom COMMA body
+    (9) atom -> . ID LEFT_BRACKET args RIGHT_BRACKET
+    (10) atom -> . ID
 
     ID              shift and go to state 6
 
-    atom                           shift and go to state 11
-    body                           shift and go to state 13
+    atom                           shift and go to state 12
+    body                           shift and go to state 14
 
 state 9
 
@@ -150,14 +155,14 @@ state 9
     (4) relation -> . atom RELATION_SPLIT body relation
     (5) relation -> . atom STOP
     (6) relation -> . atom STOP relation
-    (8) atom -> . ID LEFT_BRACKET args RIGHT_BRACKET
-    (9) atom -> . ID
+    (9) atom -> . ID LEFT_BRACKET args RIGHT_BRACKET
+    (10) atom -> . ID
 
     GOAL_SPLIT      reduce using rule 5 (relation -> atom STOP .)
     ID              shift and go to state 6
 
     atom                           shift and go to state 4
-    relation                       shift and go to state 14
+    relation                       shift and go to state 15
 
 state 10
 
@@ -168,30 +173,37 @@ state 10
 
 state 11
 
-    (14) body -> atom . STOP
-    (15) body -> atom . COMMA body
+    (8) goal -> GOAL_SPLIT STOP .
 
-    STOP            shift and go to state 15
-    COMMA           shift and go to state 16
+    $end            reduce using rule 8 (goal -> GOAL_SPLIT STOP .)
 
 
 state 12
 
-    (8) atom -> ID LEFT_BRACKET . args RIGHT_BRACKET
-    (10) args -> . VAR
-    (11) args -> . VAR COMMA args
-    (12) args -> . atom
-    (13) args -> . atom COMMA args
-    (8) atom -> . ID LEFT_BRACKET args RIGHT_BRACKET
-    (9) atom -> . ID
+    (15) body -> atom . STOP
+    (16) body -> atom . COMMA body
 
-    VAR             shift and go to state 18
-    ID              shift and go to state 6
+    STOP            shift and go to state 16
+    COMMA           shift and go to state 17
 
-    args                           shift and go to state 17
-    atom                           shift and go to state 19
 
 state 13
+
+    (9) atom -> ID LEFT_BRACKET . args RIGHT_BRACKET
+    (11) args -> . VAR
+    (12) args -> . VAR COMMA args
+    (13) args -> . atom
+    (14) args -> . atom COMMA args
+    (9) atom -> . ID LEFT_BRACKET args RIGHT_BRACKET
+    (10) atom -> . ID
+
+    VAR             shift and go to state 19
+    ID              shift and go to state 6
+
+    args                           shift and go to state 18
+    atom                           shift and go to state 20
+
+state 14
 
     (3) relation -> atom RELATION_SPLIT body .
     (4) relation -> atom RELATION_SPLIT body . relation
@@ -199,137 +211,137 @@ state 13
     (4) relation -> . atom RELATION_SPLIT body relation
     (5) relation -> . atom STOP
     (6) relation -> . atom STOP relation
-    (8) atom -> . ID LEFT_BRACKET args RIGHT_BRACKET
-    (9) atom -> . ID
+    (9) atom -> . ID LEFT_BRACKET args RIGHT_BRACKET
+    (10) atom -> . ID
 
     GOAL_SPLIT      reduce using rule 3 (relation -> atom RELATION_SPLIT body .)
     ID              shift and go to state 6
 
     atom                           shift and go to state 4
-    relation                       shift and go to state 20
+    relation                       shift and go to state 21
 
-state 14
+state 15
 
     (6) relation -> atom STOP relation .
 
     GOAL_SPLIT      reduce using rule 6 (relation -> atom STOP relation .)
 
 
-state 15
-
-    (14) body -> atom STOP .
-
-    $end            reduce using rule 14 (body -> atom STOP .)
-    ID              reduce using rule 14 (body -> atom STOP .)
-    GOAL_SPLIT      reduce using rule 14 (body -> atom STOP .)
-
-
 state 16
 
-    (15) body -> atom COMMA . body
-    (14) body -> . atom STOP
-    (15) body -> . atom COMMA body
-    (8) atom -> . ID LEFT_BRACKET args RIGHT_BRACKET
-    (9) atom -> . ID
+    (15) body -> atom STOP .
 
-    ID              shift and go to state 6
+    $end            reduce using rule 15 (body -> atom STOP .)
+    ID              reduce using rule 15 (body -> atom STOP .)
+    GOAL_SPLIT      reduce using rule 15 (body -> atom STOP .)
 
-    atom                           shift and go to state 11
-    body                           shift and go to state 21
 
 state 17
 
-    (8) atom -> ID LEFT_BRACKET args . RIGHT_BRACKET
+    (16) body -> atom COMMA . body
+    (15) body -> . atom STOP
+    (16) body -> . atom COMMA body
+    (9) atom -> . ID LEFT_BRACKET args RIGHT_BRACKET
+    (10) atom -> . ID
 
-    RIGHT_BRACKET   shift and go to state 22
+    ID              shift and go to state 6
 
+    atom                           shift and go to state 12
+    body                           shift and go to state 22
 
 state 18
 
-    (10) args -> VAR .
-    (11) args -> VAR . COMMA args
+    (9) atom -> ID LEFT_BRACKET args . RIGHT_BRACKET
 
-    RIGHT_BRACKET   reduce using rule 10 (args -> VAR .)
-    COMMA           shift and go to state 23
+    RIGHT_BRACKET   shift and go to state 23
 
 
 state 19
 
-    (12) args -> atom .
-    (13) args -> atom . COMMA args
+    (11) args -> VAR .
+    (12) args -> VAR . COMMA args
 
-    RIGHT_BRACKET   reduce using rule 12 (args -> atom .)
+    RIGHT_BRACKET   reduce using rule 11 (args -> VAR .)
     COMMA           shift and go to state 24
 
 
 state 20
+
+    (13) args -> atom .
+    (14) args -> atom . COMMA args
+
+    RIGHT_BRACKET   reduce using rule 13 (args -> atom .)
+    COMMA           shift and go to state 25
+
+
+state 21
 
     (4) relation -> atom RELATION_SPLIT body relation .
 
     GOAL_SPLIT      reduce using rule 4 (relation -> atom RELATION_SPLIT body relation .)
 
 
-state 21
-
-    (15) body -> atom COMMA body .
-
-    $end            reduce using rule 15 (body -> atom COMMA body .)
-    ID              reduce using rule 15 (body -> atom COMMA body .)
-    GOAL_SPLIT      reduce using rule 15 (body -> atom COMMA body .)
-
-
 state 22
 
-    (8) atom -> ID LEFT_BRACKET args RIGHT_BRACKET .
+    (16) body -> atom COMMA body .
 
-    RELATION_SPLIT  reduce using rule 8 (atom -> ID LEFT_BRACKET args RIGHT_BRACKET .)
-    STOP            reduce using rule 8 (atom -> ID LEFT_BRACKET args RIGHT_BRACKET .)
-    COMMA           reduce using rule 8 (atom -> ID LEFT_BRACKET args RIGHT_BRACKET .)
-    RIGHT_BRACKET   reduce using rule 8 (atom -> ID LEFT_BRACKET args RIGHT_BRACKET .)
+    $end            reduce using rule 16 (body -> atom COMMA body .)
+    ID              reduce using rule 16 (body -> atom COMMA body .)
+    GOAL_SPLIT      reduce using rule 16 (body -> atom COMMA body .)
 
 
 state 23
 
-    (11) args -> VAR COMMA . args
-    (10) args -> . VAR
-    (11) args -> . VAR COMMA args
-    (12) args -> . atom
-    (13) args -> . atom COMMA args
-    (8) atom -> . ID LEFT_BRACKET args RIGHT_BRACKET
-    (9) atom -> . ID
+    (9) atom -> ID LEFT_BRACKET args RIGHT_BRACKET .
 
-    VAR             shift and go to state 18
-    ID              shift and go to state 6
+    RELATION_SPLIT  reduce using rule 9 (atom -> ID LEFT_BRACKET args RIGHT_BRACKET .)
+    STOP            reduce using rule 9 (atom -> ID LEFT_BRACKET args RIGHT_BRACKET .)
+    COMMA           reduce using rule 9 (atom -> ID LEFT_BRACKET args RIGHT_BRACKET .)
+    RIGHT_BRACKET   reduce using rule 9 (atom -> ID LEFT_BRACKET args RIGHT_BRACKET .)
 
-    args                           shift and go to state 25
-    atom                           shift and go to state 19
 
 state 24
 
-    (13) args -> atom COMMA . args
-    (10) args -> . VAR
-    (11) args -> . VAR COMMA args
-    (12) args -> . atom
-    (13) args -> . atom COMMA args
-    (8) atom -> . ID LEFT_BRACKET args RIGHT_BRACKET
-    (9) atom -> . ID
+    (12) args -> VAR COMMA . args
+    (11) args -> . VAR
+    (12) args -> . VAR COMMA args
+    (13) args -> . atom
+    (14) args -> . atom COMMA args
+    (9) atom -> . ID LEFT_BRACKET args RIGHT_BRACKET
+    (10) atom -> . ID
 
-    VAR             shift and go to state 18
+    VAR             shift and go to state 19
     ID              shift and go to state 6
 
-    atom                           shift and go to state 19
     args                           shift and go to state 26
+    atom                           shift and go to state 20
 
 state 25
 
-    (11) args -> VAR COMMA args .
+    (14) args -> atom COMMA . args
+    (11) args -> . VAR
+    (12) args -> . VAR COMMA args
+    (13) args -> . atom
+    (14) args -> . atom COMMA args
+    (9) atom -> . ID LEFT_BRACKET args RIGHT_BRACKET
+    (10) atom -> . ID
 
-    RIGHT_BRACKET   reduce using rule 11 (args -> VAR COMMA args .)
+    VAR             shift and go to state 19
+    ID              shift and go to state 6
 
+    atom                           shift and go to state 20
+    args                           shift and go to state 27
 
 state 26
 
-    (13) args -> atom COMMA args .
+    (12) args -> VAR COMMA args .
 
-    RIGHT_BRACKET   reduce using rule 13 (args -> atom COMMA args .)
+    RIGHT_BRACKET   reduce using rule 12 (args -> VAR COMMA args .)
+
+
+state 27
+
+    (14) args -> atom COMMA args .
+
+    RIGHT_BRACKET   reduce using rule 14 (args -> atom COMMA args .)
 

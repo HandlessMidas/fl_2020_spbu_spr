@@ -80,6 +80,11 @@ def p_goal(p):
 	p[0] = p[2]
 
 
+def p_goal_empty(p):
+	'''goal : GOAL_SPLIT STOP'''
+	p[0] = ''
+
+
 def p_atom(p):
 	'''atom : ID LEFT_BRACKET args RIGHT_BRACKET'''
 	atoms.add(p[1] + '(' + ''.join(p[3]) + ')')
