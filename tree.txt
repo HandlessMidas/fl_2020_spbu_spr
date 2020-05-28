@@ -1,4 +1,4 @@
-eq(nil, nil).
+[('length(cons(X, Xs), succ(N))', 'length(Xs, N)'), ('length(nil, zero)', ''), ('concat(cons(X, Xs), Ys, cons(Z, Zs))', 'eq(X, Z), concat(Xs, Ys, Zs)'), ('concat(nil, Ys, Zs)', 'eq(Ys, Zs)'), ('eq(cons(X, Xs), cons(Y, Ys))', 'eq(X, Y), eq(Xs, Ys)'), ('eq(nil, nil)', '')]eq(nil, nil).
 eq(cons(X, Xs), cons(Y, Ys)) :- eq(X, Y), eq(Xs, Ys).
 concat(nil, Ys, Zs) :- eq(Ys, Zs).
 concat(cons(X, Xs), Ys, cons(Z, Zs)) :- eq(X, Z), concat(Xs, Ys, Zs).
