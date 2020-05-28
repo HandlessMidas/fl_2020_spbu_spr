@@ -36,7 +36,7 @@ def t_error(t):
 lex.lex()
 
 
-relations = defaultdict(list)
+relations = []
 goal = None
 atoms = set()
 varrs = set()
@@ -50,22 +50,23 @@ def p_program(p):
 
 def p_relation_single(p):
 	'''relation : atom RELATION_SPLIT body'''
-	relations[p[1]].append(p[3]) 
+	relations.append((p[1], p[3])) 
 
 
 def p_relation_multiple(p):
 	'''relation : atom RELATION_SPLIT body relation'''
-	relations[p[1]].append(p[3]) 
+	relations.append((p[1], p[3])) 
 
 
 def p_relation_empty(p):
 	'''relation : atom STOP'''
-	relations[p[1]].append('')
+	relations.append((p[1], '')) 
+
 
 
 def p_relation_empty_multiple(p):
 	'''relation : atom STOP relation'''
-	relations[p[1]].append('')
+	relations.append((p[1], '')) 
 
 
 def p_goal(p):
@@ -98,6 +99,7 @@ def p_args_var_multiple(p):
 	p[0].append(p[1] + ', ' + ''.join(p[3]))
 	varrs.add(p[1])
 
+
 def p_args_atom_single(p):
 	'''args : atom'''
 	p[0] = p[1]
@@ -115,6 +117,7 @@ def p_body_single(p):
 	'''body : atom STOP'''
 	p[0] = p[1]
 	atoms.add(p[1])
+
 
 def p_body_multiple(p):
 	'''body : atom COMMA body'''
@@ -134,7 +137,7 @@ def p_error(p):
 def parse(s):
 	global relations, goal, atoms, syntax_error, varrs
 	syntax_error = False
-	relations = defaultdict(list)	
+	relations = []
 	goal = None
 	atoms = set()
 	varrs = set()
