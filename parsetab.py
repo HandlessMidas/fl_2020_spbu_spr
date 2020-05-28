@@ -6,9 +6,9 @@ _tabversion = '3.10'
 
 _lr_method = 'LALR'
 
-_lr_signature = 'COMMA GOAL_SPLIT ID LEFT_BRACKET RELATION_SPLIT RIGHT_BRACKET STOP VARprogram : relation goalrelation : atom RELATION_SPLIT bodyrelation : atom RELATION_SPLIT body relationrelation : atom STOPrelation : atom STOP relationgoal : GOAL_SPLIT bodyatom : ID LEFT_BRACKET args RIGHT_BRACKETatom : IDargs : VARargs : VAR COMMA argsargs : atomargs : atom COMMA argsbody : atom STOPbody : atom COMMA body'
+_lr_signature = 'COMMA GOAL_SPLIT ID LEFT_BRACKET RELATION_SPLIT RIGHT_BRACKET STOP VARprogram : goalrelation : atom RELATION_SPLIT bodyrelation : atom RELATION_SPLIT body relationrelation : atom STOPrelation : atom STOP relationgoal : GOAL_SPLIT bodyatom : ID LEFT_BRACKET args RIGHT_BRACKETatom : IDargs : VARargs : VAR COMMA argsargs : atomargs : atom COMMA argsbody : atom STOPbody : atom COMMA body'
     
-_lr_action_items = {'ID':([0,6,7,8,9,12,17,18,21,22,23,],[4,4,4,4,4,4,-13,4,4,4,-14,]),'$end':([1,5,10,17,23,],[0,-1,-6,-13,-14,]),'GOAL_SPLIT':([2,8,12,13,17,19,23,],[6,-4,-2,-5,-13,-3,-14,]),'RELATION_SPLIT':([3,4,20,],[7,-8,-7,]),'STOP':([3,4,11,20,],[8,-8,17,-7,]),'LEFT_BRACKET':([4,],[9,]),'COMMA':([4,11,15,16,20,],[-8,18,21,22,-7,]),'RIGHT_BRACKET':([4,14,15,16,20,24,25,],[-8,20,-9,-11,-7,-10,-12,]),'VAR':([9,21,22,],[15,15,15,]),}
+_lr_action_items = {'GOAL_SPLIT':([0,],[3,]),'$end':([1,2,4,7,10,],[0,-1,-6,-13,-14,]),'ID':([3,8,9,15,16,],[6,6,6,6,6,]),'STOP':([5,6,14,],[7,-8,-7,]),'COMMA':([5,6,12,13,14,],[8,-8,15,16,-7,]),'LEFT_BRACKET':([6,],[9,]),'RIGHT_BRACKET':([6,11,12,13,14,17,18,],[-8,14,-9,-11,-7,-10,-12,]),'VAR':([9,15,16,],[12,12,12,]),}
 
 _lr_action = {}
 for _k, _v in _lr_action_items.items():
@@ -17,7 +17,7 @@ for _k, _v in _lr_action_items.items():
       _lr_action[_x][_k] = _y
 del _lr_action_items
 
-_lr_goto_items = {'program':([0,],[1,]),'relation':([0,8,12,],[2,13,19,]),'atom':([0,6,7,8,9,12,18,21,22,],[3,11,11,3,16,3,11,16,16,]),'goal':([2,],[5,]),'body':([6,7,18,],[10,12,23,]),'args':([9,21,22,],[14,24,25,]),}
+_lr_goto_items = {'program':([0,],[1,]),'goal':([0,],[2,]),'body':([3,8,],[4,10,]),'atom':([3,8,9,15,16,],[5,5,13,13,13,]),'args':([9,15,16,],[11,17,18,]),}
 
 _lr_goto = {}
 for _k, _v in _lr_goto_items.items():
@@ -27,18 +27,18 @@ for _k, _v in _lr_goto_items.items():
 del _lr_goto_items
 _lr_productions = [
   ("S' -> program","S'",1,None,None,None),
-  ('program -> relation goal','program',2,'p_program','new_parser.py',46),
-  ('relation -> atom RELATION_SPLIT body','relation',3,'p_relation_single','new_parser.py',52),
-  ('relation -> atom RELATION_SPLIT body relation','relation',4,'p_relation_multiple','new_parser.py',57),
-  ('relation -> atom STOP','relation',2,'p_relation_empty','new_parser.py',62),
-  ('relation -> atom STOP relation','relation',3,'p_relation_empty_multiple','new_parser.py',67),
-  ('goal -> GOAL_SPLIT body','goal',2,'p_goal','new_parser.py',72),
-  ('atom -> ID LEFT_BRACKET args RIGHT_BRACKET','atom',4,'p_atom','new_parser.py',77),
-  ('atom -> ID','atom',1,'p_atom_empty','new_parser.py',83),
-  ('args -> VAR','args',1,'p_args_var_single','new_parser.py',89),
-  ('args -> VAR COMMA args','args',3,'p_args_var_multiple','new_parser.py',96),
-  ('args -> atom','args',1,'p_args_atom_single','new_parser.py',102),
-  ('args -> atom COMMA args','args',3,'p_args_atom_multiple','new_parser.py',108),
-  ('body -> atom STOP','body',2,'p_body_single','new_parser.py',115),
-  ('body -> atom COMMA body','body',3,'p_body_multiple','new_parser.py',120),
+  ('program -> goal','program',1,'p_program','new_parser.py',52),
+  ('relation -> atom RELATION_SPLIT body','relation',3,'p_relation_single','new_parser.py',58),
+  ('relation -> atom RELATION_SPLIT body relation','relation',4,'p_relation_multiple','new_parser.py',63),
+  ('relation -> atom STOP','relation',2,'p_relation_empty','new_parser.py',68),
+  ('relation -> atom STOP relation','relation',3,'p_relation_empty_multiple','new_parser.py',74),
+  ('goal -> GOAL_SPLIT body','goal',2,'p_goal','new_parser.py',79),
+  ('atom -> ID LEFT_BRACKET args RIGHT_BRACKET','atom',4,'p_atom','new_parser.py',84),
+  ('atom -> ID','atom',1,'p_atom_empty','new_parser.py',90),
+  ('args -> VAR','args',1,'p_args_var_single','new_parser.py',96),
+  ('args -> VAR COMMA args','args',3,'p_args_var_multiple','new_parser.py',103),
+  ('args -> atom','args',1,'p_args_atom_single','new_parser.py',110),
+  ('args -> atom COMMA args','args',3,'p_args_atom_multiple','new_parser.py',116),
+  ('body -> atom STOP','body',2,'p_body_single','new_parser.py',123),
+  ('body -> atom COMMA body','body',3,'p_body_multiple','new_parser.py',129),
 ]

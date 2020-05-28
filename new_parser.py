@@ -48,6 +48,12 @@ def p_program(p):
 	goal = p[2]
 
 
+def p_program(p):
+	'''program : goal'''
+	global goal
+	goal = p[1]
+
+
 def p_relation_single(p):
 	'''relation : atom RELATION_SPLIT body'''
 	relations.append((p[1], p[3])) 
