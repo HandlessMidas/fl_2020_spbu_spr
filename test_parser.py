@@ -16,4 +16,10 @@ def test_2():
 	assert relations == {'length(cons(X, Xs), succ(N))': ['length(Xs, N)'], 'length(nil, zero)': [''], 'concat(cons(X, Xs), Ys, cons(Z, Zs))': ['eq(X, Z), concat(Xs, Ys, Zs)'], 'concat(nil, Ys, Zs)': ['eq(Ys, Zs)'], 'eq(cons(X, Xs), cons(Y, Ys))': ['eq(X, Y), eq(Xs, Ys)'], 'eq(nil, nil)': ['']}
 	assert goal == 'concat(cons(one, cons(two, nil)), const(three, cons(four, nil)), R)'
 	assert atoms == {'three', 'two', 'four', 'concat(nil, Ys, Zs)', 'const(three, cons(four, nil))', 'nil', 'cons(Z, Zs)', 'cons(Y, Ys)', 'length(nil, zero)', 'one', 'concat(cons(one, cons(two, nil)), const(three, cons(four, nil)), R)', 'zero', 'cons(one, cons(two, nil))', 'eq(Xs, Ys)', 'concat(Xs, Ys, Zs)', 'eq(Ys, Zs)', 'cons(two, nil)', 'cons(four, nil)', 'eq(X, Y)', 'eq(cons(X, Xs), cons(Y, Ys))', 'cons(X, Xs)', 'concat(cons(X, Xs), Ys, cons(Z, Zs))', 'eq(nil, nil)', 'length(cons(X, Xs), succ(N))', 'length(Xs, N)', 'eq(X, Z)', 'succ(N)'}
+
+def test_fail_1():
+	relations, goal, atoms, varrs, syntax_error = parse('fail')
+	assert syntax_error
+
+def test_fail_2():
 	

@@ -140,7 +140,7 @@ def p_error(p):
 
 
 def parse(s):
-	global relations, goal, atoms
+	global relations, goal, atoms, syntax_error, varrs
 	syntax_error = False
 	relations = defaultdict(list)	
 	goal = None
