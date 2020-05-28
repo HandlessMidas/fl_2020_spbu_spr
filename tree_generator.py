@@ -19,9 +19,4 @@ def generate_tree(file):
 
 if __name__ == '__main__':
 	with open('tree.txt', 'w') as file:
-		relations, goal, atoms, varrs = parse_file(sys.argv[1])
-		file.write(str(relations) + '\n')
-		file.write(goal + '\n')
-		file.write(str(atoms) + '\n')
-		file.write(str(varrs) + '\n')
 		file.write(generate_tree(sys.argv[1]))
