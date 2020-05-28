@@ -89,6 +89,8 @@ optimise (Num x)        = Num x
 optimise (BinOp op x y) = case (op, x', y') of
   (Mult, _, Num 0)     -> Num 0
   (Mult, Num 0, _)     -> Num 0
+  (Mult, Num 1, a)     -> a
+  (Mult, a, Num 1)     -> a
   (Mult, Num a, Num b) -> Num (a * b)
   (Plus, Num 0, b)     -> b
   (Plus, a, Num 0)     -> a
