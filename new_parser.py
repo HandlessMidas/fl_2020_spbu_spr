@@ -47,6 +47,7 @@ lex.lex()
 relations = defaultdict(list)
 goal = None
 atoms = set()
+varrs = set()
 
 
 def p_program(p):
@@ -77,13 +78,13 @@ def p_relation_empty_multiple(p):
 
 def p_goal(p):
 	'''goal : GOAL_SPLIT body'''
-	p[0] = '?-\n' + '(\n' + p[2] + '\n)'
+	p[0] = p[2]
 
 
 def p_atom(p):
 	'''atom : ID LEFT_BRACKET args RIGHT_BRACKET'''
 	atoms.add(p[1] + '(' + ''.join(p[3]) + ')')
-	p[0] = p[1] + '(\n' + ''.join(p[3]) + '\n)'
+	p[0] = p[1] + '(' + ''.join(p[3]) + ')'
 
 
 def p_atom_empty(p):
@@ -95,36 +96,37 @@ def p_atom_empty(p):
 def p_args_var_single(p):
 	'''args : VAR'''
 	p[0] = []
-	p[0].append('(\n' + p[1] + '\n)')
+	p[0].append(p[1])
+	varrs.add(p[1])
 
 
 def p_args_var_multiple(p):
 	'''args : VAR COMMA args'''
 	p[0] = []
-	p[0].append('(\n' + p[1] + '\n)' + ' ' + ''.join(p[3]))
-
+	p[0].append(p[1] + ', ' + ''.join(p[3]))
+	varrs.add(p[1])
 
 def p_args_atom_single(p):
 	'''args : atom'''
-	p[0] = '(\n' + p[1] + '\n)'
+	p[0] = p[1]
 	atoms.add(p[1])
 
 
 def p_args_atom_multiple(p):
  	'''args : atom COMMA args'''
  	p[0] = []
- 	p[0].append('(\n' + p[1] + '\n)' + ' ' + ''.join(p[3]))
+ 	p[0].append(p[1] + ', ' + ''.join(p[3]))
  	atoms.add(p[1])
 
 
 def p_body_single(p):
 	'''body : atom STOP'''
-	p[0] = '(\n' + p[1] + '\n)'
+	p[0] = p[1]
 	atoms.add(p[1])
 
 def p_body_multiple(p):
 	'''body : atom COMMA body'''
-	p[0] = '(\n' + p[1] + '\n)' + ' ' + p[3]
+	p[0] = p[1] + ', ' + p[3]
 	atoms.add(p[1])
 
 
@@ -143,8 +145,9 @@ def parse(s):
 	relations = defaultdict(list)	
 	goal = None
 	atoms = set()
+	varrs = set()
 	yacc.parse(s)
-	return relations.copy(), goal, atoms.copy()
+	return relations.copy(), goal, atoms.copy(), varrs.copy(), syntax_error
 
 
 yacc.yacc()
