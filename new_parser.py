@@ -9,7 +9,6 @@ tokens = (
 	'ID',
 	'GOAL_SPLIT',
 	'RELATION_SPLIT',
-	'NEWLINE',
 	'COMMA',
 	'RIGHT_BRACKET',
 	'LEFT_BRACKET',
@@ -26,14 +25,7 @@ t_LEFT_BRACKET = r'\('
 t_RIGHT_BRACKET = r'\)'
 t_STOP = r'\.'
 
-
-def t_NEWLINE(t):
-    r'(\n)+'
-    t.lexer.lineno += t.value.count('\n')
-    return t
-
-
-t_ignore  = ' \t'
+t_ignore  = ' \t\n'
 
 
 def t_error(t):
@@ -57,22 +49,22 @@ def p_program(p):
 
 
 def p_relation_single(p):
-	'''relation : atom RELATION_SPLIT body NEWLINE'''
+	'''relation : atom RELATION_SPLIT body'''
 	relations[p[1]].append(p[3]) 
 
 
 def p_relation_multiple(p):
-	'''relation : atom RELATION_SPLIT body NEWLINE relation'''
+	'''relation : atom RELATION_SPLIT body relation'''
 	relations[p[1]].append(p[3]) 
 
 
 def p_relation_empty(p):
-	'''relation : atom STOP NEWLINE'''
+	'''relation : atom STOP'''
 	relations[p[1]].append('')
 
 
 def p_relation_empty_multiple(p):
-	'''relation : atom STOP NEWLINE relation'''
+	'''relation : atom STOP relation'''
 	relations[p[1]].append('')
 
 

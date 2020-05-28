@@ -20,6 +20,3 @@ def test_2():
 def test_fail_1():
 	relations, goal, atoms, varrs, syntax_error = parse('fail')
 	assert syntax_error
-
-def test_fail_2():
-	
